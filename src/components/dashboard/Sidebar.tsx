@@ -8,14 +8,52 @@ interface SidebarProps {
   setActiveView: (view: string) => void;
   user: any;
   onLogout: () => void;
+  isMobile?: boolean;
 }
 
-export const Sidebar = ({ activeView, setActiveView, user, onLogout }: SidebarProps) => {
+export const Sidebar = ({ activeView, setActiveView, user, onLogout, isMobile = false }: SidebarProps) => {
   const menuItems = [
     { id: 'overview', label: 'Overview', icon: Home },
     { id: 'customers', label: 'Customers', icon: Users },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   ];
+
+  if (isMobile) {
+    return (
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 z-50">
+        <div className="flex justify-around items-center py-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Button
+                key={item.id}
+                variant="ghost"
+                size="sm"
+                className={`flex flex-col items-center space-y-1 h-auto py-2 px-3 ${
+                  activeView === item.id 
+                    ? 'text-blue-400' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                onClick={() => setActiveView(item.id)}
+              >
+                <Icon className="h-5 w-5" />
+                <span className="text-xs">{item.label}</span>
+              </Button>
+            );
+          })}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex flex-col items-center space-y-1 h-auto py-2 px-3 text-gray-400 hover:text-white"
+            onClick={onLogout}
+          >
+            <LogOut className="h-5 w-5" />
+            <span className="text-xs">Logout</span>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed left-0 top-0 h-full w-64 bg-gray-900 border-r border-gray-800 flex flex-col">

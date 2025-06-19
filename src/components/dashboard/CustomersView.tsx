@@ -80,11 +80,20 @@ export const CustomersView = () => {
     return matchesSearch && matchesStatus && matchesPlan;
   });
 
-  const handlePaymentAction = (customerId: number, action: string) => {
+  const handleSendPaymentLink = (customerId: number) => {
     const customer = customers.find(c => c.id === customerId);
     toast({
-      title: `Payment ${action}`,
-      description: `Payment ${action} for ${customer?.name} has been processed.`,
+      title: "Payment Link Sent",
+      description: `Payment link sent to ${customer?.name}`,
+    });
+  };
+
+  const handleToggleAutoPay = (customerId: number, currentStatus: string) => {
+    const customer = customers.find(c => c.id === customerId);
+    const action = currentStatus === 'automated' ? 'stopped' : 'started';
+    toast({
+      title: `Auto-pay ${action}`,
+      description: `Auto-pay ${action} for ${customer?.name}`,
     });
   };
 
@@ -109,7 +118,7 @@ export const CustomersView = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-white">Customer Management</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-white">Customer Management</h1>
         <p className="text-gray-400 mt-2">Manage subscriptions and payment settings</p>
       </div>
 
@@ -119,7 +128,7 @@ export const CustomersView = () => {
           <CardTitle className="text-white">Search & Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -132,7 +141,7 @@ export const CustomersView = () => {
               </div>
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[150px] bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="w-full md:w-[150px] bg-gray-800 border-gray-700 text-white">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
@@ -143,7 +152,7 @@ export const CustomersView = () => {
               </SelectContent>
             </Select>
             <Select value={planFilter} onValueChange={setPlanFilter}>
-              <SelectTrigger className="w-[150px] bg-gray-800 border-gray-700 text-white">
+              <SelectTrigger className="w-full md:w-[150px] bg-gray-800 border-gray-700 text-white">
                 <SelectValue placeholder="Plan" />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
@@ -166,9 +175,9 @@ export const CustomersView = () => {
           <div className="space-y-4">
             {filteredCustomers.map((customer) => (
               <div key={customer.id} className="border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-colors">
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-3 space-y-2 md:space-y-0">
                   <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
                       <h3 className="font-medium text-white">{customer.name}</h3>
                       <Badge className={getStatusColor(customer.status)}>
                         {customer.status}
@@ -179,13 +188,13 @@ export const CustomersView = () => {
                     </div>
                     <p className="text-sm text-gray-400">{customer.email}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left md:text-right">
                     <p className="text-sm text-gray-300">Subscribed for</p>
                     <p className="font-medium text-white">{customer.subscriptionDays} days</p>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                   <div>
                     <p className="text-xs text-gray-500">Subscription Date</p>
                     <p className="text-sm text-gray-300">{customer.subscriptionDate}</p>
@@ -200,37 +209,37 @@ export const CustomersView = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-blue-600 text-blue-400 hover:bg-blue-600/10 flex-1 sm:flex-none"
+                    onClick={() => handleSendPaymentLink(customer.id)}
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Payment Link
+                  </Button>
                   {customer.paymentStatus === 'automated' ? (
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-red-600 text-red-400 hover:bg-red-600/10"
-                      onClick={() => handlePaymentAction(customer.id, 'stopped')}
+                      className="border-red-600 text-red-400 hover:bg-red-600/10 flex-1 sm:flex-none"
+                      onClick={() => handleToggleAutoPay(customer.id, customer.paymentStatus)}
                     >
                       <StopCircle className="h-4 w-4 mr-2" />
-                      Stop Auto-Pay
+                      Stop Auto-pay
                     </Button>
                   ) : (
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-green-600 text-green-400 hover:bg-green-600/10"
-                      onClick={() => handlePaymentAction(customer.id, 'started')}
+                      className="border-green-600 text-green-400 hover:bg-green-600/10 flex-1 sm:flex-none"
+                      onClick={() => handleToggleAutoPay(customer.id, customer.paymentStatus)}
                     >
                       <Play className="h-4 w-4 mr-2" />
-                      Start Auto-Pay
+                      Start Auto-pay
                     </Button>
                   )}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-blue-600 text-blue-400 hover:bg-blue-600/10"
-                    onClick={() => handlePaymentAction(customer.id, 'link sent')}
-                  >
-                    <Send className="h-4 w-4 mr-2" />
-                    Send Payment Link
-                  </Button>
                 </div>
               </div>
             ))}
