@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,13 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Send, StopCircle, Play } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { AddSubscriptionDialog } from './AddSubscriptionDialog';
 
 export const CustomersView = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [planFilter, setPlanFilter] = useState('all');
-
-  const customers = [
+  const [customers, setCustomers] = useState([
     {
       id: 1,
       email: 'john@example.com',
@@ -69,7 +68,23 @@ export const CustomersView = () => {
       nextPayment: '2024-07-28',
       paymentStatus: 'automated',
     },
-  ];
+  ]);
+
+  const handleAddSubscription = (data: any) => {
+    const newCustomer = {
+      id: customers.length + 1,
+      email: data.email,
+      name: data.name,
+      plan: data.plan,
+      status: 'active',
+      subscriptionDate: new Date().toISOString().split('T')[0],
+      subscriptionDays: 0,
+      nextPayment: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      paymentStatus: data.paymentStatus,
+    };
+    
+    setCustomers([...customers, newCustomer]);
+  };
 
   const filteredCustomers = customers.filter(customer => {
     const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -117,9 +132,12 @@ export const CustomersView = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-white">Customer Management</h1>
-        <p className="text-gray-400 mt-2">Manage subscriptions and payment settings</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">Customer Management</h1>
+          <p className="text-gray-400 mt-2">Manage subscriptions and payment settings</p>
+        </div>
+        <AddSubscriptionDialog onAddSubscription={handleAddSubscription} />
       </div>
 
       {/* Filters */}
